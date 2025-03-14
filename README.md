@@ -26,7 +26,7 @@ npm install git+ssh://git@github.com:tjodalv/libscraper.git
 ## Usage example
 
 ```js
-import { createScraper } from 'libscraper.js';
+import { createScraper } from 'libscraper';
 
 const myScraper = createScraper({
     dataDirectory: './data/',
@@ -100,17 +100,17 @@ Starts the scraping process for the given array of URLs. Typically `urls` parame
 This option allows you to attach static data to the scraped items. For example, if you're scraping URLs for different categories and want to include a category ID with each item from that URL, you can use this feature to add any other static data as well. For instance:
 
 ```js
-...
-.scrape([
-    {
-        url: "https://example.com/products/brand/nike",
-        static: { brand_id: 1 }
-    },
-    {
-        url: "https://example.com/products/brand/addidas",
-        static: { brand_id: 2 }
-    }
-])
+createScraper(options)
+    .scrape([
+        {
+            url: "https://example.com/products/brand/nike",
+            static: { brand_id: 1 }
+        },
+        {
+            url: "https://example.com/products/brand/addidas",
+            static: { brand_id: 2 }
+        }
+    ])
 ```
 
 ### `customizeFilename(callback)`
@@ -136,6 +136,7 @@ Example
 import xml2js from 'xml2js';
 import path from 'path';
 import fs from 'fs';
+import { createScraper } from 'libscraper';
 
 createScraper({ format: 'xml' })
     .registerDataFormatter('xml', async function (filepath, data) {
