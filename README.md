@@ -1,6 +1,6 @@
 # libscraper.js
 
-libscraper.js is a modular and flexible web scraping library built for Node.js, designed to simplify the process of extracting data from websites. It leverages Axios for HTTP requests and Cheerio for parsing HTML, allowing users to scrape and store data in various formats like JSON and CSV.
+libscraper.js is a modular and flexible web scraping library built for Node.js, designed to simplify the process of extracting data from websites. It leverages `fetch()` for HTTP requests, Puppeteer for JavaScript-rendered pages, and Cheerio for parsing HTML, allowing users to scrape and store data in various formats like JSON and CSV.
 
 ## Features
 
