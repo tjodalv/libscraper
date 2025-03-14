@@ -1,7 +1,6 @@
 import fs from 'fs';
 import path from 'path';
 import https from 'https';
-import axios from 'axios';
 import * as cheerio from 'cheerio';
 import { createObjectCsvWriter } from 'csv-writer';
 import { extension as getExtensionFromMimeType } from 'mime-types';
@@ -301,14 +300,20 @@ const Scraper = {
     // Returns cheerio instance with loaded HTML or null if page cannot be fetched
     async fetchPage(url) {
         try {
-            const response = await axios.get(url, {
+            const response = await fetch(url, {
+                method: 'GET',
                 headers: {
                     'User-Agent': this.config.userAgent,
                     'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
-                },
+                }
             });
 
-            const $page = cheerio.load(response.data);
+            if (! response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+
+            const data = await response.text();
+            const $page = cheerio.load(data);
 
             this._fetched_pages_num++;
 
