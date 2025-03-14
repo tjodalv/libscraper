@@ -121,7 +121,7 @@ const Scraper = {
     },
 
     _getDataDirectory() {
-        return this.config.dataDirectory.startsWith('/')
+        return path.isAbsolute(this.config.dataDirectory)
             ? this.config.dataDirectory
             : path.join(process.cwd(), this.config.dataDirectory)
     },
