@@ -19,7 +19,7 @@ const defaultOptions = {
             headless: true,
             args: ['--no-sandbox', '--disable-setuid-sandbox']
         },
-        waitForElement: null,
+        waitForSelector: null,
     }
 };
 
