@@ -28,8 +28,8 @@ async function delay(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-// Scrapper API
-const Scrapper = {
+// Scraper API
+const Scraper = {
     config: {},
 
     _paginationLinksFinder: null,
@@ -361,9 +361,9 @@ const Scrapper = {
     }
 };
 
-export function createScrapper(options = {}) {
+export function createScraper(options = {}) {
     return {
-        ...Scrapper,
+        ...Scraper,
         config: {...defaultOptions, ...options},
     };
 }
