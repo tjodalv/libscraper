@@ -71,11 +71,11 @@ When initializing scraper using `createScraper()` method you can provide configu
 - `userAgent` - The user agent string that will be sent in the request headers for each HTTP request. This simulates a browser request and helps avoid being blocked by websites that restrict automated access.
 - `usePuppeteer` (default: `false`) - By default, the scraper uses `fetch()` for making HTTP requests. Puppeteer is only used if this option is set to true.
 - `puppeteer` – A configuration object for Puppeteer, which provides additional options:
-  - **`options`** – Settings for launching the Puppeteer browser:
-    - **`headless: true`** – Runs Puppeteer in headless mode (without a visible browser window) for efficiency.
-    - **`args: ['--no-sandbox', '--disable-setuid-sandbox']`** – These flags disable security sandboxing, which is required in some restricted environments (like Docker or CI/CD pipelines).
+  - `options` – Settings for launching the Puppeteer browser:
+    - `headless: true` – Runs Puppeteer in headless mode (without a visible browser window) for efficiency.
+    - `args: ['--no-sandbox', '--disable-setuid-sandbox']` – These flags disable security sandboxing, which is required in some restricted environments (like Docker or CI/CD pipelines).
 
-  - **`waitForSelector: null`** – If set to a CSS selector (e.g., `'.some-element'`), Puppeteer will wait for that element to appear before extracting the page content. This is useful for JavaScript-heavy websites that load content dynamically.
+  - `waitForSelector: null` – If set to a CSS selector (e.g., `'.some-element'`), Puppeteer will wait for that element to appear before extracting the page content. This is useful for JavaScript-heavy websites that load content dynamically.
 
 ## Methods
 
