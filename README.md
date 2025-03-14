@@ -121,7 +121,7 @@ createScraper(options)
 ```
 
 ### `customizeFilename(callback)`
-Customize filename before it is saved to disk. Callback should return new filename.
+Customize filename before the file is saved to disk. Callback should return new filename.
 
 **Callback parameters**
 - `filename` (`string`) - filename that is inferred from URL. Base domain and http(s) protocol is ommited. You can further change this string or create your own custom one.
