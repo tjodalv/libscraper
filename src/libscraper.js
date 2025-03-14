@@ -23,6 +23,21 @@ const defaultOptions = {
     }
 };
 
+function deepMerge(target, source) {
+    for (const key in source) {
+        if (source.hasOwnProperty(key)) {
+            if (typeof source[key] === 'object' && source[key] !== null && target[key] !== undefined) {
+                // If the value is an object, recursively merge it
+                target[key] = deepMerge(target[key], source[key]);
+            } else {
+                // Otherwise, just assign the value
+                target[key] = source[key];
+            }
+        }
+    }
+    return target;
+}
+
 function isValidURL(url) {
     try {
         new URL(url); // Try to create a URL object from the string
@@ -387,6 +402,6 @@ const Scraper = {
 export function createScraper(options = {}) {
     return {
         ...Scraper,
-        config: {...defaultOptions, ...options},
+        config: deepMerge({ ...defaultOptions }, options)
     };
 }
