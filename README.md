@@ -113,7 +113,7 @@ This option allows you to attach static data to the scraped items. For example, 
 ])
 ```
 
-### customizeFilename(callback)
+### `customizeFilename(callback)`
 Customize filename before it is saved to disk. Callback should return new filename.
 
 **Callback parameters**
