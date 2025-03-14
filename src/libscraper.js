@@ -13,6 +13,14 @@ const defaultOptions = {
     batchInterval: 5000,
     dataDirectory: path.join(process.cwd(), 'scraped_data'),
     filesDirectory: './files',
+    usePuppeteer: false,
+    puppeteer: {
+        options: {
+            headless: true,
+            args: ['--no-sandbox', '--disable-setuid-sandbox']
+        },
+        waitForElement: null,
+    }
 };
 
 function isValidURL(url) {
@@ -170,6 +178,12 @@ const Scraper = {
                 console.log(`Saved: ${path.basename(savedFilePath)}`);
             }
         }
+
+        // Clean up puppeteer browser instances after scraping
+        if (this._browserInstance) {
+            this._browserInstance.close();
+            this._browserInstance = null;
+        }
     },
 
     async scrapeUrl(url, staticData = {}) {
@@ -248,19 +262,14 @@ const Scraper = {
     // Returns cheerio instance with loaded HTML or null if page cannot be fetched
     async fetchPage(url) {
         try {
-            const response = await fetch(url, {
-                method: 'GET',
-                headers: {
-                    'User-Agent': this.config.userAgent,
-                    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
-                }
-            });
+            const data = this.config.usePuppeteer
+                ? await this._getPageWithPuppeteer(url)
+                : await this._getPageWithFetch(url);
 
-            if (! response.ok) {
-                throw new Error(`HTTP error! Status: ${response.status}`);
+            if (! data) {
+                throw new Error('Failed to fetch data');
             }
 
-            const data = await response.text();
             const $page = cheerio.load(data);
 
             this._fetched_pages_num++;
@@ -318,6 +327,60 @@ const Scraper = {
                 reject(err);
             });
         });
+    },
+
+    async _getPageWithFetch(url) {
+        const response = await fetch(url, {
+            method: 'GET',
+            headers: {
+                'User-Agent': this.config.userAgent,
+                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
+            }
+        });
+
+        if (! response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        return await response.text();
+    },
+
+    async _getPageWithPuppeteer(url) {
+        const browser = await this._getBrowserInstance();
+
+        const page = await browser.newPage();
+        await page.goto(url, { waitUntil: 'load' });
+
+        if (this.config.puppeteer.waitForSelector) {
+            await page.waitForSelector(this.config.puppeteer.waitForSelector);
+        }
+
+        // Get the page content after JS has been loaded
+        const content = await page.content();
+        // Close the page
+        await page.close();
+
+        return content;
+    },
+
+    _browserInstance: null,
+
+    async _getBrowserInstance() {
+        if (this._browserInstance) {
+            return this._browserInstance;
+        }
+
+        try {
+            // Dynamically import puppeteer
+            const puppeteer = await import('puppeteer');
+        
+            this._browserInstance = await puppeteer.launch(this.config.puppeteer.options);
+    
+            return this._browserInstance;
+        } catch (err) {
+            console.error('Puppeteer is not installed or there was an error loading it:', err.message);
+            return null;
+        }
     }
 };
 
