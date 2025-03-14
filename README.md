@@ -10,12 +10,13 @@ libscraper.js is a modular and flexible web scraping library built for Node.js, 
 - File Downloading Support – Download files from scraped pages and associate them with data.
 - Modular Design – Easily extend functionality using callbacks for custom behavior.
 
-## Dependencies packages
+## Dependencies
 
 - node.js
 - axios
 - cheerio
 - csv-writer
+- mime-types
 
 ## Installation
 

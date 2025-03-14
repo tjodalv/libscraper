@@ -1,9 +1,10 @@
-import axios from 'axios';
-import * as cheerio from 'cheerio';
 import fs from 'fs';
-import { createObjectCsvWriter } from 'csv-writer';
 import path from 'path';
 import https from 'https';
+import axios from 'axios';
+import * as cheerio from 'cheerio';
+import { createObjectCsvWriter } from 'csv-writer';
+import { extension as getExtensionFromMimeType } from 'mime-types';
 
 const defaultOptions = {
     format: 'json',
@@ -327,20 +328,25 @@ const Scraper = {
             filename = path.basename(String(url).split('?')[0]);
         }
 
-        if (! path.extname(filename)) {
-            filename += '.pdf';
-        }
-
-        const filePath = path.join(this._getFilesDirectory(), filename);
-
         return new Promise((resolve, reject) => {
-            const file = fs.createWriteStream(filePath);
-
             https.get(url, response => {
                 if (response.statusCode !== 200) {
-                    fs.unlink(filePath, () => reject(new Error(`Failed to download ${url}, status code: ${response.statusCode}`)));
+                    reject(new Error(`Failed to download ${url}, status code: ${response.statusCode}`));
                     return;
                 }
+
+                if (! path.extname(filename)) {
+                    const mimeType = response.headers['content-type'];
+                    // Get the file extension based on MIME type
+                    const fileExtension = getExtensionFromMimeType(mimeType);
+
+                    if (fileExtension) {
+                        filename += `.${fileExtension}`;
+                    }
+                }
+
+                const filePath = path.join(this._getFilesDirectory(), filename);
+                const file = fs.createWriteStream(filePath);
 
                 response.pipe(file);
 
@@ -350,12 +356,13 @@ const Scraper = {
                             return reject(err);
                         }
                         // Only return the relative path after the file is fully downloaded
-                        resolve(path.relative(this.config.dataDirectory, filePath));
+                        resolve(path.relative(this._getDataDirectory(), filePath));
                     });
                 });
             }).on('error', err => {
-                // Delete partially downloaded file and reject promise on error
-                fs.unlink(filePath, () => reject(err));
+                // Error downloading file
+                console.error(`Error downloading file: ${url}.`, err);
+                reject(err);
             });
         });
     }
