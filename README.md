@@ -74,12 +74,14 @@ Defines how pagination links should be extracted from each URL that is being scr
 
 **Callback parameters**
 - `$page` (`cheerio.CheerioAPI`) - The Cheerio instance of the current page
+- `url` (`string`) - URL currently being processed
 
 ### `findItemsLinks(callback)` (optional)
 Specifies how to find individual item links on a page. For example, when scraping a category page containing multiple products, this option allows you to extract the links to each product's page for further scraping.
 
 **Callback parameters**
 - `$page` (`cheerio.CheerioAPI`) - The Cheerio instance of the current page
+- `url` (`string`) - URL currently being processed
 
 ### `extractItemData(callback)` (required)
 Defines how to scrape data from individual item pages.
