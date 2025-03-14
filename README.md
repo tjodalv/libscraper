@@ -65,10 +65,17 @@ When initializing scraper using `createScraper()` method you can provide configu
 - `dataDirectory` (default: `scraped_data`) - Path to a directory, either relative or absolute. If a relative path is provided, it will be resolved based on the directory where the script is executed.
 - `filesDirectory` (default: `files`) - This path is always relative to the `dataDirectory` config option, where all downloaded files will be stored.
 - `requestInterval` (default: `2000`) - Time in miliseconds between page requests
-- `batchSize` (default: `30`): The number of pages to scrape in a single batch. Once this limit is reached, the scraper will pause before continuing to scrape additional pages. This helps avoid overloading the server or your resources.
-- `batchInterval` (default: `5000`): The delay, in milliseconds, between each batch of requests. After scraping the number of pages defined in batchSize, the scraper will wait for this amount of time before proceeding with the next batch.
-- `format` (default: `json`): The format in which the scraped data will be saved. Can be set to `'json'` or `'csv'`. This option allows you to choose the output format depending on your needs.
-- `userAgent`: The user agent string that will be sent in the request headers for each HTTP request. This simulates a browser request and helps avoid being blocked by websites that restrict automated access.
+- `batchSize` (default: `30`) - The number of pages to scrape in a single batch. Once this limit is reached, the scraper will pause before continuing to scrape additional pages. This helps avoid overloading the server or your resources.
+- `batchInterval` (default: `5000`) - The delay, in milliseconds, between each batch of requests. After scraping the number of pages defined in batchSize, the scraper will wait for this amount of time before proceeding with the next batch.
+- `format` (default: `json`) - The format in which the scraped data will be saved. Can be set to `'json'` or `'csv'`. This option allows you to choose the output format depending on your needs.
+- `userAgent` - The user agent string that will be sent in the request headers for each HTTP request. This simulates a browser request and helps avoid being blocked by websites that restrict automated access.
+- `usePuppeteer` (default: `false`) - By default, the scraper uses `fetch()` for making HTTP requests. Puppeteer is only used if this option is set to true.
+- `puppeteer` – A configuration object for Puppeteer, which provides additional options:
+  - **`options`** – Settings for launching the Puppeteer browser:
+    - **`headless: true`** – Runs Puppeteer in headless mode (without a visible browser window) for efficiency.
+    - **`args: ['--no-sandbox', '--disable-setuid-sandbox']`** – These flags disable security sandboxing, which is required in some restricted environments (like Docker or CI/CD pipelines).
+
+  - **`waitForSelector: null`** – If set to a CSS selector (e.g., `'.some-element'`), Puppeteer will wait for that element to appear before extracting the page content. This is useful for JavaScript-heavy websites that load content dynamically.
 
 ## Methods
 
