@@ -36,7 +36,7 @@ const Scrapper = {
 
     _itemsLinkFinder: null,
 
-    _itemDataExtractor(self, $page, url) {
+    _itemDataExtractor($page, downloadFile, url) {
         return null;
     },
 
