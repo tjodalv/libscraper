@@ -130,7 +130,7 @@ You can register your own custom data formatter to output scrape data into custo
 - `filepath` (`string`) - Path where file should be saved
 - `data` (`Object[]`) - Array of objects containing scraped data
 
-Example
+Example of creating XML formatter to store data into XML format:
 
 ```js
 import xml2js from 'xml2js';
@@ -138,23 +138,28 @@ import path from 'path';
 import fs from 'fs';
 import { createScraper } from 'libscraper';
 
-createScraper({ format: 'xml' })
-    .registerDataFormatter('xml', async function (filepath, data) {
-        // If the extension is missing add it
-        if (! path.extname(filepath)) {
-            filepath += '.xml';
-        }
+createScraper({
+    // Define custom formatter
+    format: 'xml'
+})
+// Register custom formatter function that will convert data to XML and store it to disk
+.registerDataFormatter('xml', async function (filepath, data) {
+    if (! path.extname(filepath)) {
+        // If the file path is missing an extension, append proper extension.
+        filepath += '.xml';
+    }
 
-        try {
-            const builder = new xml2js.Builder();
-            const xml = builder.buildObject({ data: data });
+    try {
+        const builder = new xml2js.Builder();
+        const xml = builder.buildObject({ data: data });
 
-            await fs.promises.writeFile(filepath, xml, 'utf8');
+        await fs.promises.writeFile(filepath, xml, 'utf8');
 
-            return filepath;
-        }
+        // Return filepath
+        return filepath;
+    }
 
-        return false;
-    })
-    .scrape(['https://example.com/products'])
+    return false;
+})
+.scrape(['https://example.com/products'])
 ```
