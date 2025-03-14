@@ -113,6 +113,14 @@ This option allows you to attach static data to the scraped items. For example, 
 ])
 ```
 
+### customizeFilename(callback)
+Customize filename before it is saved to disk. Callback should return new filename.
+
+**Callback parameters**
+- `filename` (`string`) - filename that is inferred from URL. Base domain and http(s) protocol is ommited. You can further change this string or create your own custom one.
+- `url` (`string`) - URL from which items are scraped
+- `items` (`Object[]`) - Array of objects containing scraped data
+
 ### `registerDataFormatter(formatterName, callback)`
 You can register your own custom data formatter to output scrape data into custom file format.
 
