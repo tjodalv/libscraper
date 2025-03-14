@@ -33,12 +33,15 @@ const myScraper = createScraper({
     format: 'csv',
     requestInterval: 2000,
 })
+// Optionally get pagination links that also needs to be scraped
 .findPaginationLinks(($page, url) => {
     return $page('.pagination a').map((_, el) => $page(el).attr('href')).get();
 })
+// Optionally if page contains links to items you want to scrape find and return array of links
 .findItemsLinks(($page, url) => {
     return $page('.product a').map((_, el) => $page(el).attr('href')).get();
 })
+// Extract needed data from  the webpage
 .extractItemData(($page, downloadFile) => {
     const imageUrls = $page('.images a').map((_, el) => $page(el).attr('href')).get();
 
@@ -87,8 +90,9 @@ Specifies how to find individual item links on a page. For example, when scrapin
 Defines how to scrape data from individual item pages.
 
 **Callback Parameters**
-- `$page` (`cheerio.CheerioAPI`) – The Cheerio instance of the current page
+- `$page` (`cheerio.CheerioAPI`) – The Cheerio instance of the current page.
 - `downloadFile()` (`libscraper.Scraper.downloadFile(url, filename)`) – Function that enables you to download a file. First parameter is required and is URL to file we want to download. Second is optional `filename`. If you do not provide filaname parameter it will be inferred from the URL.
+- `url` (`string`) - URL of the page being scraped.
 
 ### `scrape(urls)` (required)
 Starts the scraping process for the given array of URLs. Typically `urls` parameter is `array` of strings, but you can also provide url as object.

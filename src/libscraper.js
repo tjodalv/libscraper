@@ -36,7 +36,7 @@ const Scrapper = {
 
     _itemsLinkFinder: null,
 
-    _itemDataExtractor(self, $page) {
+    _itemDataExtractor(self, $page, url) {
         return null;
     },
 
@@ -269,7 +269,9 @@ const Scrapper = {
 
                     const $itemPage = await this.fetchPage(itemUrl);
 
-                    const itemData = await Promise.resolve(this._itemDataExtractor($itemPage, this.downloadFile.bind(this)));
+                    const itemData = await Promise.resolve(
+                        this._itemDataExtractor($itemPage, this.downloadFile.bind(this), itemUrl)
+                    );
 
                     if (itemData) {
                         items.push({...itemData, ...staticData});
@@ -280,7 +282,9 @@ const Scrapper = {
             } else {
                 // In case we do not have find items links function then
                 // we want to extract item data from this URL
-                const itemData = await Promise.resolve(this._itemDataExtractor($page, this.downloadFile.bind(this)));
+                const itemData = await Promise.resolve(
+                    this._itemDataExtractor($page, this.downloadFile.bind(this), pageUrl)
+                );
 
                 if (itemData) {
                     items.push({...itemData, ...staticData});
