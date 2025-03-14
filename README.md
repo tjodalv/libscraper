@@ -163,3 +163,29 @@ createScraper({
 })
 .scrape(['https://example.com/products'])
 ```
+
+## Using Puppeteer Instead of `fetch()`
+
+If you need to scrape JavaScript-rendered websites (such as those built with **React, Vue, or Angular**), you can enable Puppeteer by setting the `usePuppeteer` option to `true`. This allows the scraper to execute JavaScript and extract fully rendered content.
+
+**Note:** You must install either the `puppeteer` or `puppeteer-core` npm package yourself.
+
+### Example Usage:
+```js
+createScraper({
+    usePuppeteer: true,
+    puppeteer: {
+        waitForSelector: '.some-selector', // Optional: Wait for a specific element to appear
+        options: {
+            executablePath: '/usr/bin/chromium', // Define the browser path if needed
+            // You can specify any Puppeteer options here
+        }
+    }
+})
+.scrape(['https://example.com/articles']);
+```
+
+### Handling JavaScript-Heavy Websites
+Some websites dynamically load content via JavaScript, which may delay rendering. If elements are missing in the initial HTML, you can use the `waitForSelector` option. This instructs Puppeteer to pause scraping until a specific element is detected, ensuring that the full content is loaded before extraction.
+
+By configuring Puppeteer options, you can fine-tune the scraping process for better accuracy and performance.
