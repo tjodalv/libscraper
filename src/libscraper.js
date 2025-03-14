@@ -3,7 +3,7 @@ import path from 'path';
 import https from 'https';
 import * as cheerio from 'cheerio';
 import { extension as getExtensionFromMimeType } from 'mime-types';
-import { csvFormatter, jsonFormatter } from './formatters';
+import { csvFormatter, jsonFormatter } from './formatters.js';
 
 const defaultOptions = {
     format: 'json',
