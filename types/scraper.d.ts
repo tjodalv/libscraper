@@ -8,7 +8,7 @@ export interface PuppeteerOptions {
     waitForSelector?: string | null;
 }
 
-export interface ConfigOptions {
+export interface ScraperOptions {
     format: string;
     userAgent: string;
     requestInterval: number;
@@ -42,18 +42,15 @@ export type FilenameFormatter = (
     items: any[]
 ) => string;
 
-export interface Scraper {
-  config: ConfigOptions;
-  findPaginationLinks(callback: LinkFinder): this;
-  findItemsLinks(callback: LinkFinder): this;
-  customizeFilename(callback: FilenameFormatter): this;
-  registerDataFormatter(formatName: string, callback: DataFormatter): this;
-  getDataFormatter(): DataFormatter;
-  extractItemData(callback: ItemDataExtractor): this;
-  scrape(urls: Array<string | { url: string; static?: object }>): Promise<void>;
-  scrapeUrl(url: string, staticData?: object): Promise<any[]>;
-  fetchPage(url: string): Promise<CheerioRoot | null>;
-  downloadFile(url: string, filename?: string): Promise<string>;
+export interface ScraperAPI {
+    findPaginationLinks(callback: LinkFinder): this;
+    findItemsLinks(callback: LinkFinder): this;
+    customizeFilename(callback: FilenameFormatter): this;
+    registerDataFormatter(formatName: string, callback: DataFormatter): this;
+    extractItemData(callback: ItemDataExtractor): this;
+    scrape(urls: Array<string | { url: string; static?: object }>): Promise<void>;
 }
 
-export function createScraper(options?: Partial<ConfigOptions>): Scraper;
+export const defaultOptions: ScraperOptions;
+
+export function createScraper(options?: Partial<ScraperOptions>): ScraperAPI;
