@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "libscraper.js is a modular and flexible web scraping library built for Node.js",
   "main": "./src/libscraper.js",
+  "types": "./types/scraper.d.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
