@@ -5,6 +5,7 @@ libscraper.js is a modular and flexible web scraping library built for Node.js, 
 ## Features
 
 - Customizable Data Extraction – Define how pagination, item links, and item data should be extracted.
+- Supports JavaScript-rendered SPA Sites – Extract data from single-page applications that dynamically render content using JavaScript.
 - Supports JSON & CSV Exports – Store scraped data in different formats, but you can always define custom format like XML for example.
 - Batch Processing & Throttling – Control request intervals and batch sizes to avoid bans.
 - File Downloading Support – Download files from scraped pages and associate them with data.
