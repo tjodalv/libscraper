@@ -101,6 +101,7 @@ Defines how to scrape data from individual item pages.
 - `$page` (`cheerio.CheerioAPI`) – The Cheerio instance of the current page.
 - `downloadFile()` (`libscraper.Scraper.downloadFile(url, filename)`) – Function that enables you to download a file. First parameter is required and is URL to file we want to download. Second is optional `filename`. If you do not provide filaname parameter it will be inferred from the URL.
 - `url` (`string`) - URL of the page being scraped.
+- `appendToUrlQueue()` (`function`) – Allows you to add new URLs to the scraping queue dynamically. Accepts either a single URL (`string`) or an array of URLs (`string[]`).
 
 ### `scrape(urls)` (required)
 Starts the scraping process for the given array of URLs. Typically `urls` parameter is `array` of strings, but you can also provide url as object.
