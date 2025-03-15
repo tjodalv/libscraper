@@ -33,7 +33,8 @@ export type LinkFinder = (
 export type ItemDataExtractor = (
     page: CheerioRoot,
     downloadFile: (url: string, filename?: string) => Promise<string>,
-    url: string
+    url: string,
+    appendToUrlQueue: (url: string|Array<string>) => void,
 ) => any;
 
 export type FilenameFormatter = (

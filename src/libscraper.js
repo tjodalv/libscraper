@@ -60,7 +60,7 @@ function ScraperAPI(options = {}) {
     const callbacks = {
         paginationLinksFinder: null,
         itemsLinkFinder: null,
-        itemDataExtractor: ($page, downloadFile, url) => null,
+        itemDataExtractor: ($page, downloadFile, url, appendToUrlQueue) => null,
         filenameFormatter: (filename, url, items) => filename,
     };
 
@@ -233,6 +233,10 @@ function ScraperAPI(options = {}) {
         });
     }
 
+    // This is used by scrapeUrl function to track which URLs has been scraped
+    // and to prevent duplicate scraping
+    const scrapedUrls = new Set();
+
     async function scrapeUrl(url, staticData = {}) {
         let urlsToScrape = [url];
         let items = [];
@@ -246,18 +250,46 @@ function ScraperAPI(options = {}) {
 
         if (callbacks.paginationLinksFinder) {
             // Find pagination links if that function is defined
-            urlsToScrape = [
-                url,
-                ...await Promise.resolve(callbacks.paginationLinksFinder($, url))
-            ];
+            urlsToScrape = urlsToScrape.concat(
+                await Promise.resolve(callbacks.paginationLinksFinder($, url))
+            );
         }
 
-        for (const pageUrl of urlsToScrape) {
+        // Create URL queue
+        const urlQueue = [...urlsToScrape];
+
+        // Adds new URLs to the queue, ensuring they are valid, not already in the queue
+        // and have not been scraped yet.
+        const appendToUrlQueue = (newUrl) => {
+            if (Array.isArray(newUrl)) {
+                newUrl.forEach(u => {
+                    if (isValidURL(u) && ! scrapedUrls.has(u) && ! urlQueue.includes(u)) {
+                        urlQueue.push(u);
+                    }
+                });
+            } else {
+                if (isValidURL(newUrl) && ! scrapedUrls.has(newUrl) && ! urlQueue.includes(newUrl)) {
+                    urlQueue.push(newUrl);
+                }
+            }
+        };
+
+        while (urlQueue.length > 0) {
+            const pageUrl = urlQueue.shift();
+
+            if (scrapedUrls.has(pageUrl)) {
+                console.log(`URL already scraped. Skipping page: ${pageUrl}`);
+                continue;
+            }
+
             console.log(`Scraping page: ${pageUrl}`);
 
             const $page = (pageUrl === url)
                 ? $
                 : await fetchPage(pageUrl);
+
+            // Put scraped page into scrapedUrls set
+            scrapedUrls.add(pageUrl);
 
             if (! $page) {
                 console.log(`Cannot fetch page ${pageUrl}`);
@@ -265,16 +297,16 @@ function ScraperAPI(options = {}) {
             }
 
             if (callbacks.itemsLinkFinder) {
-                const itemsLinks = await Promise.resolve(callbacks.itemsLinkFinder($page, url));
+                const itemsLinks = await Promise.resolve(callbacks.itemsLinkFinder($page, url)) || [];
 
                 for (const itemUrl of itemsLinks) {
                     // Scrape item page (news, product, article ...)
-                    console.log(`Scraping item: ${itemUrl}`);
+                    console.log(`Scraping item page: ${itemUrl}`);
 
                     const $itemPage = await fetchPage(itemUrl);
 
                     const itemData = await Promise.resolve(
-                        callbacks.itemDataExtractor($itemPage, downloadFile, itemUrl)
+                        callbacks.itemDataExtractor($itemPage, downloadFile, itemUrl, appendToUrlQueue)
                     );
 
                     if (itemData) {
@@ -287,7 +319,7 @@ function ScraperAPI(options = {}) {
                 // In case we do not have find items links function then
                 // we want to extract item data from this URL
                 const itemData = await Promise.resolve(
-                    callbacks.itemDataExtractor($page, downloadFile, pageUrl)
+                    callbacks.itemDataExtractor($page, downloadFile, pageUrl, appendToUrlQueue)
                 );
 
                 if (itemData) {
