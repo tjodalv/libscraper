@@ -44,20 +44,6 @@ export type FilenameFormatter = (
 
 export interface Scraper {
   config: ConfigOptions;
-  _paginationLinksFinder?: LinkFinder | null;
-  _itemsLinkFinder?: LinkFinder | null;
-  _itemDataExtractor: ItemDataExtractor;
-  _filenameFormatter: FilenameFormatter;
-  _dataFormatters: { [format: string]: DataFormatter };
-  _fetched_pages_num: number;
-  _browserInstance: any;
-
-  _throttleRequests(): Promise<void>;
-  _ensureDirectoryExists(): void;
-  _getDataDirectory(): string;
-  _getFilesDirectory(): string;
-  _getFilenameFromUrl(url: string): string;
-
   findPaginationLinks(callback: LinkFinder): this;
   findItemsLinks(callback: LinkFinder): this;
   customizeFilename(callback: FilenameFormatter): this;
@@ -68,9 +54,6 @@ export interface Scraper {
   scrapeUrl(url: string, staticData?: object): Promise<any[]>;
   fetchPage(url: string): Promise<CheerioRoot | null>;
   downloadFile(url: string, filename?: string): Promise<string>;
-  _getPageWithFetch(url: string): Promise<string>;
-  _getPageWithPuppeteer(url: string): Promise<string>;
-  _getBrowserInstance(): Promise<any>;
 }
 
 export function createScraper(options?: Partial<ConfigOptions>): Scraper;
