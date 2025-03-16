@@ -13,7 +13,17 @@
   },
   "keywords": [
     "scraper",
-    "data"
+    "scraping",
+    "data scraper",
+    "web scraper",
+    "web scraping",
+    "data scraping",
+    "crawler",
+    "web crawler",
+    "data crawler",
+    "spa scraper",
+    "data extractor",
+    "extract data"
   ],
   "dependencies": {
     "cheerio": "^1.0.0",
