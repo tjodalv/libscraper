@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import https from 'https';
-import * as cheerio from 'cheerio';
+import { load as cheerioLoadHtml } from 'cheerio';
 import { extension as getExtensionFromMimeType } from 'mime-types';
 import { csvFormatter, jsonFormatter } from './formatters.js';
 
@@ -174,7 +174,7 @@ function ScraperAPI(options = {}) {
                 throw new Error('Failed to fetch data');
             }
 
-            const $page = cheerio.load(data);
+            const $page = cheerioLoadHtml(data);
 
             fetched_pages_num++;
 

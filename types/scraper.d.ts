@@ -1,4 +1,4 @@
-import type { Root as CheerioRoot } from 'cheerio';
+import type { CheerioAPI } from 'cheerio';
 
 export interface PuppeteerOptions {
     options: {
@@ -26,12 +26,12 @@ export type DataFormatter = (
 ) => string | Promise<string>;
 
 export type LinkFinder = (
-    page: CheerioRoot,
+    page: CheerioAPI,
     url: string
 ) => string[] | Promise<string[]>;
 
 export type ItemDataExtractor = (
-    page: CheerioRoot,
+    page: CheerioAPI,
     downloadFile: (url: string, filename?: string) => Promise<string>,
     url: string,
     appendToUrlQueue: (url: string|Array<string>) => void,
