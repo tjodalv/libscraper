@@ -240,7 +240,7 @@ function ScraperAPI(options = {}) {
     async function scrapeUrl(url, staticData = {}) {
         let urlsToScrape = [url];
         let items = [];
-        const parsedUrl = new URL('https://example.com:8080/path/to/file?query=123#section');
+        const parsedUrl = new URL(url);
         const baseUrl = `${parsedUrl.protocol}//${parsedUrl.host}`;
 
         const $ = await fetchPage(url);
