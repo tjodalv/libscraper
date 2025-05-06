@@ -240,6 +240,8 @@ function ScraperAPI(options = {}) {
     async function scrapeUrl(url, staticData = {}) {
         let urlsToScrape = [url];
         let items = [];
+        const parsedUrl = new URL('https://example.com:8080/path/to/file?query=123#section');
+        const baseUrl = `${parsedUrl.protocol}//${parsedUrl.host}`;
 
         const $ = await fetchPage(url);
 
@@ -299,9 +301,14 @@ function ScraperAPI(options = {}) {
             if (callbacks.itemsLinkFinder) {
                 const itemsLinks = await Promise.resolve(callbacks.itemsLinkFinder($page, url)) || [];
 
-                for (const itemUrl of itemsLinks) {
+                for (let itemUrl of itemsLinks) {
                     // Scrape item page (news, product, article ...)
                     console.log(`Scraping item page: ${itemUrl}`);
+
+                    if (! itemUrl.startsWith('http')) {
+                        // If itemUrl is missing full address then append baseUrl to it
+                        itemUrl = baseUrl + itemUrl;
+                    }
 
                     const $itemPage = await fetchPage(itemUrl);
 
