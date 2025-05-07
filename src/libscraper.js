@@ -124,8 +124,17 @@ function ScraperAPI(options = {}) {
             return browserInstance;
         }
         catch (err) {
-            console.error('Puppeteer is not installed or there was an error loading it:', err.message);
-            return null;
+            console.warn('Failed to load puppeteer, try loading puppeteer-core.');
+
+            try {
+                // Fallback to puppeteer-core
+                const puppeteerCore = await import('puppeteer-core');
+                browserInstance = await puppeteerCore.launch(config.puppeteer.options);
+                return browserInstance;
+            } catch (err2) {
+                console.error('puppeteer or puppeteer-core are not available. Install missing dependencies.', err2.message);
+                return null;
+            }
         }
     }
 
