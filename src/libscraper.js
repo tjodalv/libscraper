@@ -115,27 +115,26 @@ function ScraperAPI(options = {}) {
             return browserInstance;
         }
 
+        let puppeteer;
+
         try {
             // Dynamically import puppeteer
-            const puppeteer = await import('puppeteer');
-        
-            browserInstance = await puppeteer.launch(config.puppeteer.options);
-    
-            return browserInstance;
+            puppeteer = await import('puppeteer');
         }
         catch (err) {
             console.warn('Failed to load puppeteer, try loading puppeteer-core.');
 
             try {
                 // Fallback to puppeteer-core
-                const puppeteerCore = await import('puppeteer-core');
-                browserInstance = await puppeteerCore.launch(config.puppeteer.options);
-                return browserInstance;
+                puppeteer = await import('puppeteer-core');
             } catch (err2) {
                 console.error('puppeteer or puppeteer-core are not available. Install missing dependencies.', err2.message);
                 return null;
             }
         }
+
+        browserInstance = await puppeteer.launch(config.puppeteer.options);
+        return browserInstance;
     }
 
     async function getPageWithFetch(url) {
