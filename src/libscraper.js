@@ -18,8 +18,7 @@ export const defaultOptions = {
         options: {
             headless: true,
             args: ['--no-sandbox', '--disable-setuid-sandbox']
-        },
-        waitForSelector: null,
+        }
     }
 };
 
@@ -55,6 +54,13 @@ async function delay(ms) {
 
 function ScraperAPI(options = {}) {
     const config = deepMerge({ ...defaultOptions }, options);
+
+    // This selectors are used when scraper is using puppeteer for scraping
+    const waitForSelectors = {
+        paginationFinder: null,
+        itemsFinder: null,
+        dataExtractor: null,
+    };
 
     // Register default callbacks
     const callbacks = {
@@ -153,14 +159,14 @@ function ScraperAPI(options = {}) {
         return await response.text();
     }
 
-    async function getPageWithPuppeteer(url) {
+    async function getPageWithPuppeteer(url, waitForSelector = null) {
         const browser = await getBrowserInstance();
 
         const page = await browser.newPage();
         await page.goto(url, { waitUntil: 'load' });
 
-        if (config.puppeteer.waitForSelector) {
-            await page.waitForSelector(config.puppeteer.waitForSelector);
+        if (waitForSelector) {
+            await page.waitForSelector(waitForSelector);
         }
 
         // Get the page content after JS has been loaded
@@ -172,10 +178,10 @@ function ScraperAPI(options = {}) {
     }
 
     // Returns cheerio instance with loaded HTML or null if page cannot be fetched
-    async function fetchPage(url) {
+    async function fetchPage(url, waitForSelector = null) {
         try {
             const data = config.usePuppeteer
-                ? await getPageWithPuppeteer(url)
+                ? await getPageWithPuppeteer(url, waitForSelector)
                 : await getPageWithFetch(url);
 
             if (! data) {
@@ -251,7 +257,7 @@ function ScraperAPI(options = {}) {
         const parsedUrl = new URL(url);
         const baseUrl = `${parsedUrl.protocol}//${parsedUrl.host}`;
 
-        const $ = await fetchPage(url);
+        const $ = await fetchPage(url, waitForSelectors.paginationFinder);
 
         if (! $) {
             console.log(`Cannot fetch page ${url}`);
@@ -292,11 +298,15 @@ function ScraperAPI(options = {}) {
                 continue;
             }
 
+            const waitForSelector = callbacks.itemsLinkFinder
+                ? waitForSelectors.itemsFinder
+                : waitForSelectors.dataExtractor;
+
             console.log(`Scraping page: ${pageUrl}`);
 
             const $page = (pageUrl === url)
                 ? $
-                : await fetchPage(pageUrl);
+                : await fetchPage(pageUrl, waitForSelector);
 
             // Put scraped page into scrapedUrls set
             scrapedUrls.add(pageUrl);
@@ -318,7 +328,7 @@ function ScraperAPI(options = {}) {
                         itemUrl = baseUrl + itemUrl;
                     }
 
-                    const $itemPage = await fetchPage(itemUrl);
+                    const $itemPage = await fetchPage(itemUrl, waitForSelectors.dataExtractor);
 
                     const itemData = await Promise.resolve(
                         callbacks.itemDataExtractor($itemPage, downloadFile, itemUrl, appendToUrlQueue)
@@ -401,9 +411,13 @@ function ScraperAPI(options = {}) {
 
     // Expose Scraper API
     return {
-        extractItemData(callback) {
+        extractItemData(callback, options = {}) {
             if (typeof callback === 'function') {
                 callbacks.itemDataExtractor = callback;
+            }
+
+            if (options.waitForSelector) {
+                waitForSelectors.dataExtractor = options.waitForSelector;
             }
     
             return this;
@@ -422,16 +436,24 @@ function ScraperAPI(options = {}) {
     
             return this;
         },
-        findItemsLinks(callback) {
+        findItemsLinks(callback, options = {}) {
             if (typeof callback === 'function') {
                 callbacks.itemsLinkFinder = callback;
+            }
+
+            if (options.waitForSelector) {
+                waitForSelectors.itemsFinder = options.waitForSelector;
             }
     
             return this;
         },
-        findPaginationLinks(callback) {
+        findPaginationLinks(callback, options = {}) {
             if (typeof callback === 'function') {
                 callbacks.paginationLinksFinder = callback;
+            }
+
+            if (options.waitForSelector) {
+                waitForSelectors.paginationFinder = options.waitForSelector;
             }
     
             return this;
