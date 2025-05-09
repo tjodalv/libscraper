@@ -272,26 +272,41 @@ function ScraperAPI(options = {}) {
         }
 
         // Create URL queue
-        const urlQueue = [...urlsToScrape];
+        const urlQueue = {
+            list: [...urlsToScrape]
+        };
+
+        // Object that holds extra data attached to specified URL
+        const dataForUrl = {};
 
         // Adds new URLs to the queue, ensuring they are valid, not already in the queue
         // and have not been scraped yet.
-        const appendToUrlQueue = (newUrl) => {
-            if (Array.isArray(newUrl)) {
-                newUrl.forEach(u => {
-                    if (isValidURL(u) && ! scrapedUrls.has(u) && ! urlQueue.includes(u)) {
-                        urlQueue.push(u);
+        const appendUrlToQueue = (queue) => {
+            return (url, urlData) => {
+                if (Array.isArray(url)) {
+                    url.forEach(u => {
+                        if (isValidURL(u) && ! scrapedUrls.has(u) && ! queue.list.includes(u)) {
+                            queue.list.push(u);
+
+                            if (urlData) {
+                                dataForUrl[u] = urlData;
+                            }
+                        }
+                    });
+                } else {
+                    if (isValidURL(url) && ! scrapedUrls.has(url) && ! queue.list.includes(url)) {
+                        queue.list.push(url);
+
+                        if (urlData) {
+                            dataForUrl[url] = urlData;
+                        }
                     }
-                });
-            } else {
-                if (isValidURL(newUrl) && ! scrapedUrls.has(newUrl) && ! urlQueue.includes(newUrl)) {
-                    urlQueue.push(newUrl);
                 }
-            }
+            };
         };
 
-        while (urlQueue.length > 0) {
-            const pageUrl = urlQueue.shift();
+        while (urlQueue.list.length > 0) {
+            const pageUrl = urlQueue.list.shift();
 
             if (scrapedUrls.has(pageUrl)) {
                 console.log(`URL already scraped. Skipping page: ${pageUrl}`);
@@ -317,9 +332,14 @@ function ScraperAPI(options = {}) {
             }
 
             if (callbacks.itemsLinkFinder) {
-                const itemsLinks = await Promise.resolve(callbacks.itemsLinkFinder($page, url)) || [];
+                const itemsLinks = {
+                    list: await Promise.resolve(callbacks.itemsLinkFinder($page, url)) || []
+                };
 
-                for (let itemUrl of itemsLinks) {
+                //for (let itemUrl of itemsLinks) {
+                while (itemsLinks.list.length > 0) {
+                    let itemUrl = itemsLinks.list.shift();
+
                     // Scrape item page (news, product, article ...)
                     console.log(`Scraping item page: ${itemUrl}`);
 
@@ -330,25 +350,31 @@ function ScraperAPI(options = {}) {
 
                     const $itemPage = await fetchPage(itemUrl, waitForSelectors.dataExtractor);
 
+                    const extraData = dataForUrl[itemUrl];
+
                     const itemData = await Promise.resolve(
-                        callbacks.itemDataExtractor($itemPage, downloadFile, itemUrl, appendToUrlQueue)
+                        callbacks.itemDataExtractor($itemPage, downloadFile, itemUrl, appendUrlToQueue(itemsLinks), extraData)
                     );
 
                     if (itemData) {
-                        items.push({...itemData, ...staticData});
+                        items.push({...itemData, ...staticData, ...extraData || {}});
                     }
 
                     await throttleRequests();
                 }
             } else {
+                const extraData = dataForUrl[pageUrl];
+
                 // In case we do not have find items links function then
                 // we want to extract item data from this URL
                 const itemData = await Promise.resolve(
-                    callbacks.itemDataExtractor($page, downloadFile, pageUrl, appendToUrlQueue)
+                    callbacks.itemDataExtractor($page, downloadFile, pageUrl, appendUrlToQueue(urlQueue), extraData)
                 );
 
                 if (itemData) {
-                    items.push({...itemData, ...staticData});
+
+
+                    items.push({...itemData, ...staticData, ...extraData || {}});
                 }
             }
 
@@ -419,21 +445,21 @@ function ScraperAPI(options = {}) {
             if (options.waitForSelector) {
                 waitForSelectors.dataExtractor = options.waitForSelector;
             }
-    
+
             return this;
         },
         registerDataFormatter(formatName, callback) {
             if (typeof callback === 'function') {
                 dataFormatters[formatName] = callback;
             }
-    
+
             return this;
         },
         customizeFilename(callback) {
             if (typeof callback === 'function') {
                 callbacks.filenameFormatter = callback;
             }
-    
+
             return this;
         },
         findItemsLinks(callback, options = {}) {
@@ -444,7 +470,7 @@ function ScraperAPI(options = {}) {
             if (options.waitForSelector) {
                 waitForSelectors.itemsFinder = options.waitForSelector;
             }
-    
+
             return this;
         },
         findPaginationLinks(callback, options = {}) {
@@ -455,7 +481,7 @@ function ScraperAPI(options = {}) {
             if (options.waitForSelector) {
                 waitForSelectors.paginationFinder = options.waitForSelector;
             }
-    
+
             return this;
         },
         scrape,
