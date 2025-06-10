@@ -359,7 +359,7 @@ function ScraperAPI(options = {}) {
                     if (Array.isArray(itemData)) {
                         items = [
                             ...items,
-                            itemData.map(item => ({
+                            ...itemData.map(item => ({
                                 ...item,
                                 ...staticData,
                                 ...extraData || {}
@@ -385,7 +385,7 @@ function ScraperAPI(options = {}) {
                 if (Array.isArray(itemData)) {
                     items = [
                         ...items,
-                        itemData.map(item => ({
+                        ...itemData.map(item => ({
                             ...item,
                             ...staticData,
                             ...extraData || {}
