@@ -356,8 +356,19 @@ function ScraperAPI(options = {}) {
                         callbacks.itemDataExtractor($itemPage, downloadFile, itemUrl, appendUrlToQueue(itemsLinks), extraData)
                     );
 
-                    if (itemData) {
-                        items.push({...itemData, ...staticData, ...extraData || {}});
+                    if (Array.isArray(itemData)) {
+                        items = [
+                            ...items,
+                            itemData.map(item => ({
+                                ...item,
+                                ...staticData,
+                                ...extraData || {}
+                            }))
+                        ];
+                    } else {
+                        if (itemData) {
+                            items.push({...itemData, ...staticData, ...extraData || {}});
+                        }
                     }
 
                     await throttleRequests();
@@ -371,10 +382,19 @@ function ScraperAPI(options = {}) {
                     callbacks.itemDataExtractor($page, downloadFile, pageUrl, appendUrlToQueue(urlQueue), extraData)
                 );
 
-                if (itemData) {
-
-
-                    items.push({...itemData, ...staticData, ...extraData || {}});
+                if (Array.isArray(itemData)) {
+                    items = [
+                        ...items,
+                        itemData.map(item => ({
+                            ...item,
+                            ...staticData,
+                            ...extraData || {}
+                        }))
+                    ];
+                } else {
+                    if (itemData) {
+                        items.push({...itemData, ...staticData, ...extraData || {}});
+                    }
                 }
             }
 
